@@ -1,0 +1,63 @@
+name: LaTeX PDF Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up TeX Live
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: main.tex
+
+      - name: "Get Previous tag"
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: "v1.0.0"
+
+      - name: "Get next version"
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.previoustag.outputs.tag }}
+
+      - name: Create Tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.semvers.outputs.v_patch }}
+          tag_exists_error: true
+          message: "Release version ${{ steps.semvers.outputs.v_patch }}"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.semvers.outputs.v_patch }}
+          release_name: Release ${{ steps.semvers.outputs.v_patch }}
+          body: |
+            Automated release for commit ${{ github.sha }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: main.pdf
+          asset_name: tcc-felipe-graeff.pdf
+          asset_content_type: application/pdf
