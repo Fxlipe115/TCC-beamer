@@ -4,8 +4,10 @@
 \usepackage[brazil]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage[alf,abnt-emphasize=bf]{abntex2cite} 
 \usepackage{textcomp}
+
+% Add the citation package
+\usepackage[alf,abnt-emphasize=bf]{abntex2cite}
 
 % Choose the Inf theme
 \usetheme{Inf}
@@ -13,8 +15,8 @@
 % --- Title Information ---
 \title[HIoT Data Security with MA-ABE]{A Hybrid Multi-Authority Attribute-Based Encryption Scheme For Securing HIoT Data}
 \author{Felipe de Almeida Graeff}
-\institute{Instituto de Informática --- UFRGS \\ \vspace{0.5cm} Advisors: Prof. Dr. Jéferson Campos Nobre \\ M.Sc Laura Rodrigues Soares}
-\date{\today}
+\institute{Instituto de Informática --- UFRGS \\ \vspace{0.5cm} Advisor: Prof. Dr. Jéferson Campos Nobre \\ Co-advisor: M.Sc Laura Rodrigues Soares}
+\date{8 de julho de 2025}
 
 \begin{document}
 
@@ -33,20 +35,30 @@
 \section{Introduction}
 
 \begin{frame}
+    \frametitle{Background}
+    \begin{itemize}
+        \item \citeonline{laura2023} proposed a decentralized architecture for the Health Internet of Things (HIoT) using decentralized storage and blockchain technologies.
+        \item Their work lacks a robust cryptographic solution to ensure data confidentiality, data ownership, access control, and privacy.
+        \item We extend their frameword by proposing a hybrid cryptographic approach to enhance the security of the system and enable fine-grained access control based on user attributes.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
     \frametitle{Context: HIoT and Data Security}
     \begin{itemize}
         \item The Health Internet of Things (HIoT) is transforming healthcare with devices that generate vast amounts of sensitive patient data.
         \item This creates significant security and privacy challenges, as centralized storage is vulnerable to attacks and failures.
-        \item Decentralized architectures using IPFS and blockchain are a promising alternative, as proposed by \citeonline{laura2023}.
+        \item Decentralized architectures using decentralized storage and blockchain are a promising alternative.
     \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Problem Statement}
     \begin{itemize}
-        \item The foundational framework by \citeonline{laura2023} identified a critical gap: the need for a detailed cryptographic scheme for fine-grained access control.
+        \item Many works identified a critical gap in security for HIoT: the need for a detailed cryptographic scheme for fine-grained access control.
         \item Without this layer, data is vulnerable to unauthorized access, even in a decentralized system.
         \item Traditional encryption methods are insufficient for the multi-stakeholder healthcare environment where access rights need to be dynamic and attribute-based.
+        \item Limited computational resources in HIoT devices also pose a challenge, requiring efficiency cryptographic systems to deal with the high volume of data generated.
     \end{itemize}
 \end{frame}
 
@@ -57,37 +69,58 @@
     \frametitle{A Hybrid Cryptographic Framework}
     This work proposes a hybrid cryptographic scheme that integrates into decentralized HIoT architectures, combining:
     \begin{itemize}
-        \item \textbf{Multi-Authority Attribute-Based Encryption (MA-ABE)} for fine-grained access control based on user attributes (e.g., 'doctor', 'researcher').
+        \item \textbf{Multi-Authority Attribute-Based Encryption (MA-ABE)} for fine-grained access control based on user attributes (e.g., 'doctor@hospital', 'researcher@university').
         \item \textbf{Advanced Encryption Standard (AES)} for the efficient and high-performance encryption of large data payloads.
     \end{itemize}
-    This approach ensures both robust security and operational efficiency.
+    In this scheme, the costly MA-ABE operations are used only to encrypt a small symmetric key for the AES algorithm, while the latter deals with the bulk of the data, ensuring both robust security and operational efficiency.
 \end{frame}
 
 \begin{frame}
-    \frametitle{Key Generation}
-    \begin{figure}
-    \includegraphics[width=\textwidth]{images/diagrams/keygen_diagram.pdf}
-    \caption{Authorities issue keys to users based on their attributes.}
-\end{figure}
-
+    \frametitle{Key generation}
+    \begin{itemize}
+        \item First the authority enrolls into the system, generating both a secret and a public key.
+        \item The authority then uses their secret key to generate a key for the user, giving it some set of attributes.
+    \end{itemize}
 \end{frame}
-    \begin{frame}
-    \frametitle{Encryption}
+
+\begin{frame}
+    \frametitle{Authorities issue keys to users based on their attributes}
     \begin{figure}
-        \includegraphics[width=\textwidth]{images/diagrams/encryption_diagram.pdf}
-        \caption{The hybrid process combines MA-ABE for the symmetric key and AES for the payload.}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/diagrams/keygen_diagram.pdf}
     \end{figure}
 \end{frame}
-        
+
+\begin{frame}
+    \frametitle{Encryption process}
+    \begin{itemize}
+        \item To encrypt data, a user provides the system with the data to be encrypted, together with an access policy.
+        \item The access policy is a bolean expression of attributes required to decrypt the data.
+        \item A random symmetric key is generated and used to encrypt the data with AES.
+        \item The same symmetric key is then encrypted using MA-ABE with the public keys of the authorities involved in the access policy.
+        \item Both the encrypted symmetric key and the encrypted data are returned to the user.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Encryption Workflow Diagram}
+    \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/diagrams/encryption_diagram.pdf}
+    \end{figure}
+\end{frame}
+
 \begin{frame}
     \frametitle{Decryption Process}
     \begin{itemize}
         \item To decrypt data, a user must possess a set of attribute keys that satisfies the access policy defined during encryption.
-        \item The user first decrypts the symmetric key using their MA-ABE keys and then uses the symmetric key to decrypt the payload with AES.
+        \item The process first decrypts the symmetric key using the MA-ABE keys provided by the user and then uses the symmetric key to decrypt the payload with AES.
+        \item This workflow enforces the access policy by requiring valid attribute keys to access the data.
     \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Decryption Workflow Diagram}
     \begin{figure}
-        \includegraphics[width=0.8\textwidth]{images/diagrams/decryption_diagram.pdf}
-        \caption{The decryption workflow enforces the access policy by requiring valid attribute keys to access the data.}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/diagrams/decryption_diagram.pdf}
     \end{figure}
 \end{frame}
 
@@ -103,7 +136,8 @@
         \item \textbf{Locust} was used for load testing to simulate concurrent users.
         \item \textbf{Gunicorn} managed concurrent requests with configurable workers and threads.
         \item \textbf{Charm-Crypto} provided the implementation of the MaabeRW15 scheme for MA-ABE.
-        \item \textbf{Flask}, \textbf{Flask-RESTX}, and \textbf{Redis} were used for the API and key management.
+        \item \textbf{Flask}, \textbf{Flask-RESTX} were used for API generation.
+        \item \textbf{Redis} was used for key storage and management.
         \item All services were containerized with \textbf{Docker} for reproducibility.
     \end{itemize}
 \end{frame}
@@ -112,40 +146,108 @@
 \section{Results and Discussion}
 
 \begin{frame}
+    \frametitle{Tests}
+    We tested system permorfance for a combination of variables:
+    \begin{itemize}
+        \item Threads and workers on the server.
+        \item Payload size.
+        \item Simultaneous user load.
+        \item Policy size.
+    \end{itemize}
+
+    We also measured the storage required for the user keys for different numbers of attributes.
+\end{frame}
+
+\begin{frame}
     \frametitle{Concurrency Analysis}
     \begin{itemize}
-        \item The system scales effectively with the number of \textbf{processes (workers)} but does not benefit from multi-threading due to Python's Global Interpreter Lock (GIL).
-        \item Optimal performance was achieved with 25 workers and 1 thread, which was used for subsequent tests.
+        \item The system scales exponentialy with the number of \textbf{processes (workers)} but does not benefit from multi-threading due to Python's Global Interpreter Lock (GIL).
+        \item From 5 workers onwards, the system performance stays stable, going from around 8.5 seconds to 200 milliseconds.
+        \item Due to those results and to Gunicorn recomendation (based on the number of processor cores in the testbed machine), we decided to proceed to the subsequent tests with 25 workers and 1 thread.
     \end{itemize}
-    \begin{figure}
-        \includegraphics[width=0.8\textwidth]{images/phase1/api_decrypt/response_time_threads_summary.png}
-        \caption{Decryption response time decreases as the number of workers increases (threads fixed at 1).}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Response time vs. number of workers}
+     \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/phase1/api_decrypt/response_time_threads_1.png}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Payload Size and Policy Complexity}
+    \frametitle{Response time vs. number of threads}
+    \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/phase1/api_decrypt/response_time_workers_25.png}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Payload Size Impact}
     \begin{itemize}
-        \item \textbf{Payload Size:} Response times increase with larger payloads, but the hybrid approach remains efficient, confirming its suitability for large datasets.
-        \item \textbf{Policy Complexity:} Response times, especially for decryption, increase with the number of attributes in the access policy, highlighting a trade-off between security granularity and performance.
+        \item Response times increase linearly with larger payloads, with decrytion times being significantly higher than encryption times due to the higher complexity of the operation.
+        \item This confirms the hybrid approach's suitability for large datasets, balancing security and performance.
     \end{itemize}
-        \begin{figure}
-        \includegraphics[width=\textwidth]{images/phase4/response_time_api_decrypt.png}
-        \caption{Decryption response time for different policy sizes.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Encryption time vs. payload size}
+    \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/phase2/response_time_api_encrypt.png}
     \end{figure}
 \end{frame}
 
 \begin{frame}
-    \frametitle{User Load and Key Size}
-    \begin{itemize}
-        \item \textbf{User Load:} Performance degrades at high concurrency levels, showing the system handles moderate user loads well.
-        \item \textbf{Key Size:} User key size grows linearly with the number of attributes, which has implications for storage and network bandwidth in a decentralized system like IPFS.
-    \end{itemize}
+    \frametitle{Decryption time vs. payload size}
     \begin{figure}
-        \includegraphics[width=0.9\textwidth]{images/key_size_analysis/user_key_size_analysis.png}
-        \caption{User key size for different numbers of attributes.}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/phase2/response_time_api_decrypt.png}
     \end{figure}
 \end{frame}
+
+\begin{frame}
+    \frametitle{User Load Impact}
+    \begin{itemize}
+        \item The system handles moderate user loads well, with response times remaining stable up to 100 concurrent users.
+        \item Performance degrades at higher concurrency levels, indicating the need for further optimization or scaling strategies in high-demand scenarios.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Response time vs. number of users}
+    \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/phase3/response_time_api_encrypt_256KB.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impact of Policy Complexity}
+    \begin{itemize}
+        \item The complexity of the access policy (number of attributes) significantly affects decryption times, with more complex policies leading to longer response times.
+        \item This highlights the trade-off between security granularity and performance, as more attributes provide finer control but increase computational overhead.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Decryption time vs. attributes}
+    \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/phase4/response_time_api_decrypt.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impact of User Key Size}
+    \begin{itemize}
+        \item The size of the user keys increases linearly with the number of attributes, impacting storage requirements and potentially affecting performance.
+        \item This is a critical consideration for systems with many users or attributes, as larger keys can lead to increased I/O operations and slower response times.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Key size vs. number of attributes}
+    \begin{figure}
+        \includegraphics[width=\textwidth,height=0.7\textheight,keepaspectratio]{images/key_size_analysis/user_key_size_analysis.png}
+    \end{figure}
+\end{frame}
+
 
 % --- Conclusion ---
 \section{Conclusion and Future Work}
@@ -163,9 +265,9 @@
     \frametitle{Future Work}
     \begin{itemize}
         \item Full integration with the decentralized storage framework by \citeonline{laura2023} and end-to-end evaluation in a distributed environment.
-        \item Optimization for handling binary data (e.g., medical images) directly, to reduce encoding overhead and improve efficiency.
+        \item Implementation of handling of binary data (e.g., medical images) directly, to reduce encoding overhead and improve efficiency.
         \item Exploration of alternative key storage mechanisms to reduce I/O bottlenecks.
-        \item Comparison with other MA-ABE schemes to further optimize performance.
+        \item Investigation of further optimizations for MA-ABE operations, such as parallel processing or hardware acceleration.
     \end{itemize}
 \end{frame}
 
@@ -176,7 +278,7 @@
 
 % --- Thank you ---
 \begin{frame}
-    \frametitle{Obrigado!}
+    \frametitle{Thank you!}
     \begin{center}
         \Large Questions?
     \end{center}
